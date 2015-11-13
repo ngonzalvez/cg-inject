@@ -20,7 +20,8 @@
         func = self[key];
         str = func.toString();
 
-        if (str.indexOf('/* cg-inject: disable */')) continue;
+        // Skip functions with dependency injection not enabled.
+        if (str.indexOf('/* $inject: enabled */') === -1) continue;
 
         // List of parameter names in the function signature.
         depNames = str.match(/^function\s*[^\(]*\(\s*([^\)]*)\)/m)[1].split(',');
