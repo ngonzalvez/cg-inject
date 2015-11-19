@@ -1,11 +1,8 @@
 # cg-inject
 This is a simple service that provides a very clean way to inject dependencies in an Angular controller, service, factory or provider when using Prototypes.
 
-### NOTE
-This is still work in progress. Dependency injection for methods doesn't work when the code is minified.
-
 ### Prototypes
-If you've worked some time with AngularJS in a medium to large app, you've probably ended up with very long controller functions. In order to improve the legibility of the code, I decided to use prototypes.
+If you've worked some time with AngularJS in a medium to large app, you've probably ended up with very long controller functions as I did. In order to improve the legibility of the code, I decided to use prototypes.
 
 Here is an example of what a controller looks like when using prototypes.
 
@@ -27,7 +24,7 @@ SampleCtrl.$inject = [
 ];
 
 /**
- * Method that do stuff.
+ * Method that does stuff.
  */
 SampleCtrl.prototype.someMethod = function () {
 
@@ -46,7 +43,7 @@ angular
 ~~~
 
 ### Methods dependencies
-Some times your methods will have some dependencies that are being injected to your controller. Then, a simple way to do pass the dependency to the controller is to make it a pseudo-private property of the controller.
+Some times your methods will need some dependencies that are being injected to your controller. Then, a simple way to do pass the dependency to the controller is to make it a pseudo-private property of the controller.
 
 ~~~js
 var SampleCtrl = function ($someDep, $otherDep, $lastDep) {
@@ -103,7 +100,7 @@ And that's bad, because it distracts the developer working on this code. We need
 
 
 ### The solution
-$inject solves the dependency injection problem by automatically injecting all dependencies into the `this` object and into the controller methods. This is how it works:
+**$inject** solves the dependency injection problem by automatically injecting all dependencies into the `this` object and into the controller methods. This is how it works:
 
 ~~~js
 var SampleCtrl = function ($inject) {
@@ -123,17 +120,44 @@ SampleCtrl.$inject = [
 ];
 ~~~
 
-The above code will inject the dependencies as it we were doing it previously, but it is automated now. We still can access the dependencies in the controller with: `this._$scope` or `this._$stateParams`.
+The above code will inject the dependencies the same we were doing it previously, but it requires less lines of code. We still can access the dependencies in the controller with: `this._$scope` or `this._$stateParams`.
 
-You just need to add the $inject service as the first dependency of your controller and call it with the Controller class, the controller instance and its arguments list.
+In order to use $inject you need to follow three simple steps:
 
-$inject also works for services, factories, providers, directives and everything dependency-injected that is using prototypes.
+1) Add `cg.inject` as a dependency of your app module.
+
+~~~js
+angular.module('myApp', ['cg.inject']);
+~~~
+
+2) Add $inject function as the first dependency of your controller.
+
+~~~js
+var AppCtrl = function ($inject) {
+
+};
+
+AppCtrl.$inject = ['$inject'];
+
+~~~
+
+3) Call it from your controller constructor. It requires 3 arguments: Controller class, reference to the current controller instance (this) and the arguments list.
+
+~~~js
+var AppCtrl = function ($inject) {
+  $inject(AppCtrl, this, arguments);
+};
+~~~
+
+That's all! You have clean dependency injection in your controller.
+
+**$inject** also works for services, factories, providers, directives and everything dependency-injected that is using prototypes.
 
 ### Method Dependency Injection
 
-Apart from injecting the dependencies into the `this` object, $inject can also inject the dependencies into the controller methods based on the method arguments names. The only thing you must do is enable it by adding `/* $inject: enabled */` to your method body.
+Apart from injecting the dependencies into the `this` object, $inject can also inject the dependencies into the controller methods based on the method arguments names. The only thing you must do is enable it by adding `/* $inject: dependencyName */` to your method body.
 
-NOTE: Since this is using reflection it won't work on minified code. However, it will be supported in future versions.
+NOTE: Dependency Injection won't work if the $inject comment is removed by a minifier.
 
 ~~~js
 
@@ -144,11 +168,16 @@ var SampleCtrl = function ($inject) {
 SampleCtrl.$inject = [
     '$inject',
     '$scope',
-    '$stateParams'
+    'UsersManager'
 ];
 
-SampleCtrl.prototype.getQueryParams = function ($stateParams) {
-  /* $inject: enabled */
-  return $stateParams;
+SampleCtrl.prototype.updateQueryParams = function ($scope, UsersManager) {
+  /* $inject: $scope, UsersManager */
+  
+  UsersManager
+  	.getAll()
+  	.then(function (users) {
+  	  $scope.users = users;
+  	});
 };
 ~~~
