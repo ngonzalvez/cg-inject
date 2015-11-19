@@ -28,7 +28,7 @@
         depNames = str.match(/\/\*\s*\$inject:([^*]+)/);
 
         // Skip methods without the $inject comment.
-        if (depNames && depNames.length < 2) continue;
+        if (!depNames || depNames.length < 2) continue;
 
         depNames = depNames[1].split(',');
 
