@@ -122,15 +122,21 @@ SampleCtrl.$inject = [
 
 The above code will inject the dependencies the same we were doing it previously, but it requires less lines of code. We still can access the dependencies in the controller with: `this._$scope` or `this._$stateParams`.
 
-In order to use $inject you need to follow three simple steps:
+In order to use $inject you need to follow these simple steps:
 
-1) Add `cg.inject` as a dependency of your app module.
+1) Install cg-inject with bower.
+
+~~~js
+bower install cg-inject --save
+~~~
+
+2) Add `cg.inject` as a dependency of your app module.
 
 ~~~js
 angular.module('myApp', ['cg.inject']);
 ~~~
 
-2) Add $inject function as the first dependency of your controller.
+3) Add $inject function as the first dependency of your controller.
 
 ~~~js
 var AppCtrl = function ($inject) {
@@ -141,7 +147,7 @@ AppCtrl.$inject = ['$inject'];
 
 ~~~
 
-3) Call it from your controller constructor. It requires 3 arguments: Controller class, reference to the current controller instance (this) and the arguments list.
+4) Call it from your controller constructor. It requires 3 arguments: Controller class, reference to the current controller instance (this) and the arguments list.
 
 ~~~js
 var AppCtrl = function ($inject) {
