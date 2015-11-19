@@ -1,11 +1,11 @@
 {
   "name": "cg-inject",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "authors": [
-    "Nicolás Gonzálvez <cristopher.gonzalvez@gmail.con>"
+    "Nicolás Gonzálvez"
   ],
   "description": "Simple dependency injection utility when working with prototypes in AngularJS 1.x",
-  "main": "dist/cg-inject.min.js",
+  "main": "src/cg-inject.js",
   "keywords": [
     "angularjs",
     "di",
