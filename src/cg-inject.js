@@ -1,6 +1,9 @@
 (function (ng) {
   'use strict';
 
+  /**
+   * Angular.js utility for cleaner dependency injection.
+   */
   var $inject = function (cls, self, args) {
     var i;
     var key;
@@ -10,21 +13,24 @@
     var deps = [];
     var l = cls.$inject.length;
 
+    // Inject all dependencies into the self reference.
     for (i = 0; i < l; i++) {
       key = '_' + cls.$inject[i];
       self[key] = args[i];
     }
 
-    for (key in self) {
-      if (typeof self[key] === 'function') {
-        func = self[key];
+    for (key in cls.prototype) {
+      if (typeof cls.prototype[key] === 'function') {
+        func = cls.prototype[key];
         str = func.toString();
 
-        // Skip functions with dependency injection not enabled.
-        if (str.indexOf('/* $inject: enabled */') === -1) continue;
+        // List of dependencies.
+        depNames = str.match(/\/\*\s*\$inject:([^*]+)/);
 
-        // List of parameter names in the function signature.
-        depNames = str.match(/^function\s*[^\(]*\(\s*([^\)]*)\)/m)[1].split(',');
+        // Skip methods without the $inject comment.
+        if (depNames.length < 2) continue;
+
+        depNames = depNames[1].split(',');
 
         // Map the dependency names to the actual dependencies.
         args = depNames.map(function (name) {
@@ -39,6 +45,10 @@
     }
   };
 
+  var $injectService = function () {
+    return $inject;
+  };
+
   ng.module('cg.inject', [])
-    .service('$inject', $inject);
+    .factory('$inject', $injectService);
 })(angular);
